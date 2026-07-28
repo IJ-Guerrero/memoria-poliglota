@@ -11,7 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { getLanguages, getCategories, getTopScores } from '@/lib/api';
-import type { Language, Category, GameScore } from '@/types';
+import type { Language, Category, Puntuacion } from '@/types';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorState from '@/components/ErrorState';
 import CategoryIcon from '@/components/CategoryIcon';
@@ -19,7 +19,7 @@ import CategoryIcon from '@/components/CategoryIcon';
 export default function HomePage() {
   const [languages, setLanguages] = useState<Language[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [scores, setScores] = useState<GameScore[]>([]);
+  const [scores, setScores] = useState<Puntuacion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,9 +36,30 @@ export default function HomePage() {
       setCategories(cats);
       setScores(top);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load data');
+      setError(e instanceof Error ? e.message : 'Error al cargar la página');
     } finally {
       setLoading(false);
+    }
+  }
+
+  function formatTime(totalSeconds: number): string {
+    const horas = Math.floor(totalSeconds / 3600);
+    const minutos = Math.floor((totalSeconds % 3600) / 60);
+    const segundos = totalSeconds % 60;
+
+    return [horas, minutos, segundos]
+    .map(v => String(v).padStart(2, "0"))
+    .join(":");
+  }
+
+  function getBandera(codigo: string): string {
+    switch (codigo) {
+        case "es": return "🇪🇸";
+        case "en": return "🇺🇸";
+        case "pt": return "🇵🇹";
+        case "de": return "🇩🇪";
+        case "it": return "🇮🇹";
+        default: return "🌍";
     }
   }
 
@@ -46,7 +67,7 @@ export default function HomePage() {
     load();
   }, []);
 
-  if (loading) return <LoadingSpinner label="Loading your dashboard" />;
+  if (loading) return <LoadingSpinner label="Cargando" />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
@@ -58,24 +79,23 @@ export default function HomePage() {
           <div className="mx-auto max-w-2xl text-center">
             <span className="chip mx-auto mb-5 bg-white/70 text-teal-700 ring-1 ring-teal-200">
               <Sparkles className="h-3.5 w-3.5" />
-              Learn by matching
+              Aprende jugando
             </span>
             <h1 className="font-display text-4xl font-semibold tracking-tight text-slate-900 text-balance sm:text-6xl">
-              Train your memory,
+              Entrena tu memoria,
               <br />
-              <span className="text-teal-600">learn a language.</span>
+              <span className="text-teal-600">aprende un idioma.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base text-slate-600 sm:text-lg">
-              Flip cards, match words across languages, and grow your vocabulary one
-              pair at a time. Five languages, five categories, endless practice.
+              Da vuelta las cartas, encuentra las parejas de palabras entre distintos idiomas y amplía tu vocabulario una pareja a la vez.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link to="/play" className="btn-primary">
                 <Play className="h-4 w-4" />
-                Start playing
+                Comenzar a jugar
               </Link>
               <Link to="/categories" className="btn-secondary">
-                Browse categories
+                Explorar categorías
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -83,9 +103,9 @@ export default function HomePage() {
 
           <div className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-3 sm:gap-4">
             {[
-              { label: 'Languages', value: languages.length, icon: Languages },
-              { label: 'Categories', value: categories.length, icon: LayoutGrid },
-              { label: 'Concepts', value: 30, icon: Brain },
+              { label: 'Idiomas', value: languages.length, icon: Languages },
+              { label: 'Categorías', value: categories.length, icon: LayoutGrid },
+              { label: 'Conceptos', value: 30, icon: Brain },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -105,14 +125,14 @@ export default function HomePage() {
       {/* Quick actions */}
       <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <h2 className="font-display text-2xl font-semibold text-slate-900">
-          Jump back in
+          Volver
         </h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { to: '/play', label: 'Play a round', desc: 'Match words to win', icon: Play },
-            { to: '/categories', label: 'Categories', desc: 'Pick a theme to study', icon: LayoutGrid },
-            { to: '/languages', label: 'Languages', desc: 'Choose what to learn', icon: Languages },
-            { to: '/settings', label: 'Settings', desc: 'Tune difficulty & language', icon: Settings },
+            { to: '/play', label: 'Jugar una ronda', desc: 'Empareja palabras para ganar', icon: Play },
+            { to: '/categories', label: 'Categorías', desc: 'Elige un tema para jugar', icon: LayoutGrid },
+            { to: '/languages', label: 'Idiomas', desc: 'Elige qué aprender', icon: Languages },
+            { to: '/settings', label: 'Configuración', desc: 'Ajusta la dificultad y el idioma', icon: Settings },
           ].map((item) => (
             <Link
               key={item.to}
@@ -136,10 +156,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="flex items-end justify-between">
           <h2 className="font-display text-2xl font-semibold text-slate-900">
-            Popular categories
+            Categorías populares
           </h2>
           <Link to="/categories" className="btn-ghost">
-            View all
+            Ver todas
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -170,7 +190,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
           <div className="flex items-end justify-between">
             <h2 className="font-display text-2xl font-semibold text-slate-900">
-              Recent top scores
+              Tabla de posiciones
             </h2>
             <Trophy className="h-5 w-5 text-amber-500" />
           </div>
@@ -178,45 +198,87 @@ export default function HomePage() {
             <table className="w-full text-sm">
               <thead className="border-b border-slate-100 bg-slate-50/50 text-left text-xs uppercase tracking-wide text-slate-400">
                 <tr>
-                  <th className="px-5 py-3 font-medium">Rank</th>
-                  <th className="px-5 py-3 font-medium">Category</th>
-                  <th className="px-5 py-3 font-medium">Language</th>
-                  <th className="px-5 py-3 text-right font-medium">Score</th>
-                  <th className="hidden px-5 py-3 text-right font-medium sm:table-cell">Moves</th>
-                  <th className="hidden px-5 py-3 text-right font-medium sm:table-cell">Time</th>
+                  <th className="px-5 py-3 font-medium">#</th>
+                  <th className="px-5 py-3 font-medium">Jugador</th>
+                  <th className="px-5 py-3 font-medium">Categoría</th>
+                  <th className="px-5 py-3 font-medium">Idiomas</th>
+                  <th className="px-5 py-3 text-center font-medium">Parejas</th>
+                  <th className="px-5 py-3 text-right font-medium">Puntuación</th>
+                  <th className="hidden px-5 py-3 text-right font-medium sm:table-cell">Movimientos</th>
+                  <th className="hidden px-5 py-3 text-right font-medium sm:table-cell">Tiempo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {scores.map((s, i) => (
-                  <tr key={s.id} className="transition-colors hover:bg-slate-50/50">
-                    <td className="px-5 py-3">
-                      <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                        i === 0 ? 'bg-amber-100 text-amber-700' :
-                        i === 1 ? 'bg-slate-200 text-slate-600' :
-                        i === 2 ? 'bg-orange-100 text-orange-700' :
-                        'bg-slate-100 text-slate-500'
-                      }`}>
-                        {i + 1}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 font-medium text-slate-700">
-                      {(s as GameScore & { categories?: { name: string } }).categories?.name ?? '—'}
-                    </td>
-                    <td className="px-5 py-3 uppercase text-slate-500">
-                      {s.language_code}
-                    </td>
-                    <td className="px-5 py-3 text-right font-semibold text-teal-700">
-                      {s.score}
-                    </td>
-                    <td className="hidden px-5 py-3 text-right text-slate-500 sm:table-cell">
-                      {s.moves}
-                    </td>
-                    <td className="hidden px-5 py-3 text-right text-slate-500 sm:table-cell">
-                      {s.time_seconds}s
-                    </td>
-                  </tr>
-                ))}
+                  {scores.map((s, i) => (
+                      <tr key={s.idPuntuacion} className="transition-colors hover:bg-slate-50/50">
+
+                          <td className="px-5 py-3">
+                              <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                                  i === 0
+                                      ? "bg-amber-100 text-amber-700"
+                                      : i === 1
+                                      ? "bg-slate-200 text-slate-600"
+                                      : i === 2
+                                      ? "bg-orange-100 text-orange-700"
+                                      : "bg-slate-100 text-slate-500"
+                              }`}>
+                                  {i + 1}
+                              </span>
+                          </td>
+
+                          <td className="px-5 py-3 font-semibold text-slate-800">
+                              {s.nombre}
+                          </td>
+
+                          <td className="px-5 py-3 text-slate-600">
+                              {s.nombreCategoria}
+                          </td>
+
+                          <td className="px-5 py-3">
+                              <div className="text-sm">
+                                {(() => {
+                                    const idiomas = [
+                                        {
+                                            nombre: s.nombreIdiomaOrigen,
+                                            codigo: s.codigoIdiomaOrigen,
+                                        },
+                                        {
+                                            nombre: s.nombreIdiomaDestino,
+                                            codigo: s.codigoIdiomaDestino,
+                                        },
+                                    ].sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+                                    return (
+                                        <>
+                                            {idiomas[0].nombre}
+                                            <span className="mx-2 text-slate-400">•</span>
+                                            {idiomas[1].nombre}
+                                        </>
+                                    );
+                                })()}
+                            </div>
+                          </td>
+
+                          <td className="px-5 py-3 text-center">
+                              {s.cantidadParejas}
+                          </td>
+
+                          <td className="px-5 py-3 text-right font-semibold text-teal-700">
+                              {s.puntuacion}
+                          </td>
+
+                          <td className="hidden px-5 py-3 text-right text-slate-500 sm:table-cell">
+                              {s.movimientos}
+                          </td>
+
+                          <td className="hidden px-5 py-3 text-right text-slate-500 sm:table-cell">
+                              {formatTime(s.tiempoSegundos)}
+                          </td>
+
+                      </tr>
+                  ))}
               </tbody>
+              
             </table>
           </div>
         </section>

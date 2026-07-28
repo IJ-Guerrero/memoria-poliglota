@@ -17,10 +17,11 @@ export default function LanguagesPage() {
   async function load() {
     setLoading(true);
     setError(null);
+
     try {
       setLanguages(await getLanguages());
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load languages');
+      setError(e instanceof Error ? e.message : 'Error al cargar los idiomas');
     } finally {
       setLoading(false);
     }
@@ -30,24 +31,46 @@ export default function LanguagesPage() {
     load();
   }, []);
 
-  if (loading) return <LoadingSpinner label="Loading languages" />;
+  if (loading) return <LoadingSpinner label="Cargando idiomas" />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Languages"
-        subtitle="Pick the language you want to learn. Your choice is saved and used every time you play."
+        title="Idiomas"
+        subtitle="Selecciona el idioma que conoces y el idioma que quieres aprender."
       />
 
       <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {languages.map((lang, i) => {
-            const isActive = settings.languageCode === lang.code;
+            const isOrigen = settings.idiomaOrigen?.id === lang.id;
+            const isDestino = settings.idiomaDestino?.id === lang.id;
+            const isActive = isOrigen || isDestino;
+
             return (
               <button
                 key={lang.id}
-                onClick={() => update({ languageCode: lang.code })}
+                onClick={() => {
+                  if (!settings.idiomaOrigen) {
+                    update({
+                      idiomaOrigen: lang
+                    });
+                    return;
+                  }
+
+                  if (!settings.idiomaDestino && settings.idiomaOrigen.id !== lang.id) {
+                    update({
+                      idiomaDestino: lang
+                    });
+                    return;
+                  }
+
+                  update({
+                    idiomaOrigen: lang,
+                    idiomaDestino: settings.idiomaOrigen
+                  });
+                }}
                 className={`card card-hover group flex items-center gap-4 text-left animate-slide-up ${
                   isActive ? 'border-teal-500 ring-2 ring-teal-500/20' : ''
                 }`}
@@ -56,14 +79,29 @@ export default function LanguagesPage() {
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-3xl">
                   {lang.flag_emoji}
                 </span>
+
                 <div className="flex-1">
                   <p className="font-display text-lg font-semibold text-slate-900">
                     {lang.name}
                   </p>
+
                   <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                     {lang.code}
                   </p>
+
+                  {/* {isOrigen && (
+                    <p className="mt-1 text-xs font-bold uppercase text-teal-600">
+                      Idioma base
+                    </p>
+                  )}
+
+                  {isDestino && (
+                    <p className="mt-1 text-xs font-bold uppercase text-blue-600">
+                      Aprendiendo
+                    </p>
+                  )} */}
                 </div>
+
                 {isActive ? (
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-500 text-white">
                     <Check className="h-4 w-4" />
@@ -78,13 +116,20 @@ export default function LanguagesPage() {
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200/70 bg-white p-5">
           <div>
-            <p className="text-sm text-slate-500">Currently learning</p>
+            <p className="text-sm text-slate-500">
+              Idiomas seleccionados
+            </p>
+
             <p className="font-display text-lg font-semibold text-slate-900">
-              {languages.find((l) => l.code === settings.languageCode)?.name ?? '—'}
+              - {settings.idiomaOrigen?.name ?? '—'}
+            </p>
+            <p className="font-display text-lg font-semibold text-slate-900">
+              - {settings.idiomaDestino?.name ?? '—'}
             </p>
           </div>
+
           <Link to="/play" className="btn-primary">
-            Start playing
+            Empezar a jugar
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

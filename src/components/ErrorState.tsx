@@ -16,7 +16,7 @@ export default function ErrorState({
       {onRetry && (
         <button onClick={onRetry} className="btn-secondary mt-2">
           <RefreshCw className="h-4 w-4" />
-          Try again
+          Reintentar
         </button>
       )}
     </div>

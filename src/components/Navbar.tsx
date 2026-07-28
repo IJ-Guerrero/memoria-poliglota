@@ -2,11 +2,11 @@ import { NavLink, Link } from 'react-router-dom';
 import { Languages, Home, Play, LayoutGrid, Settings, Globe } from 'lucide-react';
 
 const navItems = [
-  { to: '/', label: 'Home', icon: Home, end: true },
-  { to: '/play', label: 'Play', icon: Play },
-  { to: '/categories', label: 'Categories', icon: LayoutGrid },
-  { to: '/languages', label: 'Languages', icon: Languages },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/', label: 'Inicio', icon: Home, end: true },
+  { to: '/play', label: 'Jugar', icon: Play },
+  { to: '/categories', label: 'Categorías', icon: LayoutGrid },
+  { to: '/languages', label: 'Idiomas', icon: Languages },
+  { to: '/settings', label: 'Configuración', icon: Settings },
 ];
 
 export default function Navbar() {
@@ -18,7 +18,7 @@ export default function Navbar() {
             <Globe className="h-5 w-5" />
           </span>
           <span className="font-display text-xl font-semibold tracking-tight text-slate-900">
-            Lingua<span className="text-teal-600">Match</span>
+            Memoria<span className="text-teal-600">Políglota</span>
           </span>
         </Link>
 

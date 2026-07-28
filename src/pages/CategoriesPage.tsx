@@ -30,7 +30,7 @@ export default function CategoriesPage() {
       );
       setCategories(withCounts);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load categories');
+      setError(e instanceof Error ? e.message : 'Error al cargar las categorías');
     } finally {
       setLoading(false);
     }
@@ -40,14 +40,14 @@ export default function CategoriesPage() {
     load();
   }, []);
 
-  if (loading) return <LoadingSpinner label="Loading categories" />;
+  if (loading) return <LoadingSpinner label="Cargando categorias" />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Categories"
-        subtitle="Each category is a themed set of vocabulary. Pick one to start matching words."
+        title="Categorias"
+        subtitle="Cada categoría reúne un conjunto de palabras relacionadas por un mismo tema. Elige una para comenzar a emparejar palabras."
       />
 
       <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
@@ -65,7 +65,7 @@ export default function CategoriesPage() {
                 </span>
                 <span className="chip bg-slate-100 text-slate-500">
                   <BookOpen className="h-3 w-3" />
-                  {cat.wordCount} words
+                  {cat.wordCount} palabras
                 </span>
               </div>
               <div>
@@ -77,7 +77,7 @@ export default function CategoriesPage() {
                 </p>
               </div>
               <div className="mt-auto flex items-center gap-1 text-sm font-medium text-teal-600">
-                Play now
+                Jugar ahora
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </div>
             </Link>
